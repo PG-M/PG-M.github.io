@@ -12,36 +12,8 @@
 	    padding: 0;
 	    font-family: "Mori";
 	    color: rgb(255, 252, 225);
-	    background: #0e100f;
-	    background: url('../images/one.jpg') center/cover no-repeat fixed;
-
-	    /* 确保移动端适配 */
-	    background-size: cover;
-	    /* 保持图片覆盖整个屏幕 */
-	    background-position: center;
-	    /* 图片居中显示 */
-	    background-repeat: no-repeat;
-	    background-attachment: fixed;
-	    /* 注意：移动端可能不支持fixed */
-
-	    /* 移动端优化 */
-	    -webkit-background-size: cover;
-	    /* iOS Safari */
-	    -moz-background-size: cover;
-	    /* 老版本Firefox */
-	    -o-background-size: cover;
-	    /* 老版本Opera */
-	}
-
-	/* 移动端特殊处理 */
-	@media (max-width: 768px) {
-	    body {
-	        /* 移动端移除fixed，提升性能 */
-	        background-attachment: scroll;
-
-	        /* 或者使用contain在移动端显示完整图片 */
-	        /* background-size: contain; */
-	    }
+	    background: #63e5f3;
+        
 	}
 
 	body {
@@ -50,7 +22,7 @@
 	    align-items: center;
 	    justify-content: center;
 	    min-height: 100vh;
-
+        
 	}
 
 	main {
