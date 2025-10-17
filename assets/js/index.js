@@ -2,12 +2,12 @@
 gsap.registerPlugin(Draggable);
 
 const colors = [
-	["rgb(155, 237, 255)", "rgb(3, 127, 154)"],
+	["rgba(232, 110, 114, 1)", "rgb(232, 110, 114)"],
 	["rgb(10, 228, 72)", "rgb(171, 255, 132)"],
 	["rgb(255, 135, 9)", "rgb(247, 189, 248)"],
 	["rgb(241, 0, 203)", "rgb(254, 197, 251)"],
 	["rgb(155, 237, 255)", "rgb(3, 127, 154)"],
-	["rgb(10, 228, 72)", "rgb(171, 255, 132)"]
+	["rgba(92, 154, 235, 1)", "rgb(92, 154, 235)"]
 ];
 
 const logo = document.querySelector('.logo');
@@ -15,7 +15,7 @@ const items = document.querySelectorAll('.img-group svg');
 const originalPositions = new Map();
 
 // 密码验证相关变量
-const targetSequence = [4, 0, 0, 1]; // 目标序列 1 0 0 8
+const targetSequence = [4, 0, 0, 1]; 
 let currentSequence = []; // 当前拖拽序列
 let attemptCount = 0; // 尝试次数
 const maxAttempts = 20; // 最大尝试次数
