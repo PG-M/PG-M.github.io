@@ -1,185 +1,150 @@
-// 注册 Draggable 插件
-gsap.registerPlugin(Draggable);
+const title = document.getElementById('title');
+const password = ['1', '0', '0', '8'];
+let sequence = [];  // 累计输入的数字序列
+let attemptCount = 0;
+const maxAttempts = 15;
 
-const colors = [
-	["rgba(232, 110, 114, 1)", "rgb(232, 110, 114)"],
-	["rgb(10, 228, 72)", "rgb(171, 255, 132)"],
-	["rgb(255, 135, 9)", "rgb(247, 189, 248)"],
-	["rgb(241, 0, 203)", "rgb(254, 197, 251)"],
-	["rgb(155, 237, 255)", "rgb(3, 127, 154)"],
-	["rgba(92, 154, 235, 1)", "rgb(92, 154, 235)"]
-];
+// 点击盼盼 = 数字0
+title.addEventListener('click', () => {
+	if (attemptCount >= maxAttempts) {
+		console.log('已锁定，不能再输入');
+		return;
+	}
 
-const logo = document.querySelector('.logo');
-const items = document.querySelectorAll('.img-group svg');
-const originalPositions = new Map();
+	addNumber('0');
 
-// 密码验证相关变量
-const targetSequence = [4, 0, 0, 1]; 
-let currentSequence = []; // 当前拖拽序列
-let attemptCount = 0; // 尝试次数
-const maxAttempts = 20; // 最大尝试次数
-let passwordUnlocked = false; // 密码是否已解锁
-
-// 存储初始位置
-items.forEach((item, index) => {
-	originalPositions.set(item, {
-		x: 0,
-		y: 0,
-		scale: 1,
-		rotation: 0
-	});
+	// 翻转 + 放大动画
+	gsap.fromTo(title,
+		{ rotationY: 0, scale: 1 },
+		{
+			rotationY: 360,
+			scale: 1.5,
+			duration: 0.6,
+			ease: "power1.inOut",
+			onComplete: () => {
+				// 动画完成后恢复初始状态
+				gsap.to(title, { rotationY: 0, scale: 1, duration: 0.2 });
+			}
+		}
+	);
 });
 
-items.forEach((item, i) => {
-	const itemColor = colors[i];
+// 拖动数字 1-9
+document.querySelectorAll('.lottieItem').forEach(item => {
+	const path = item.dataset.path;
+	const num = item.dataset.num;
+
+	const animation = lottie.loadAnimation({
+		container: item,
+		renderer: 'svg',
+		loop: true,
+		autoplay: false,
+		path: path
+	});
+
+	let isPlaying = false;
 
 	Draggable.create(item, {
 		type: "x,y",
-		bounds: "body",
+		edgeResistance: 0.65,
+		inertia: true,
 		onPress: function () {
-			// 如果已经超过最大尝试次数且未解锁，直接返回
-			if (attemptCount >= maxAttempts && !passwordUnlocked) {
-				return;
-			}
-
-			// 保存当前位置
-			originalPositions.set(item, {
-				x: this.x,
-				y: this.y,
-				scale: 1,
-				rotation: 0
-			});
-
-			// 放大并旋转当前拖拽的图标
-			gsap.to(item, {
-				duration: 0.1,
-				scale: 1.2,
-				rotate: 'random(-9,9)',
-				zIndex: 100
-			});
-
-			// 降低其他图标的透明度
-			gsap.to(items, {
-				duration: 0.1,
-				opacity: (index, target) => (target === item) ? 1 : 0.3
-			});
-		},
-
-		onRelease: function () {
-			// 如果已经超过最大尝试次数且未解锁，直接返回
-			if (attemptCount >= maxAttempts && !passwordUnlocked) {
-				// 强制回到原始位置
-				const originalPos = originalPositions.get(item);
-				gsap.to(item, {
-					duration: 0.4,
-					x: originalPos.x,
-					y: originalPos.y,
-					rotate: originalPos.rotation,
-					scale: originalPos.scale,
-					ease: 'elastic.out(.45)'
-				});
-
-				// 恢复所有图标的透明度
-				gsap.to(items, {
-					duration: 0.2,
-					opacity: 1,
-					zIndex: 0
-				});
-				return;
-			}
-
-			const originalPos = originalPositions.get(item);
-
-			// 检查是否在logo上方
-			if (Draggable.hitTest(item, logo, 20)) {
-				// 记录拖拽的图标索引到序列中
-				currentSequence.push(i);
-				attemptCount++;
-
-				console.log(`当前序列: ${currentSequence}, 尝试次数: ${attemptCount}`);
-
-				// 检查序列是否匹配
-				checkSequence();
-			}
-
-			// 平滑回到原始位置
-			gsap.to(item, {
-				duration: 0.4,
-				x: originalPos.x,
-				y: originalPos.y,
-				rotate: originalPos.rotation,
-				scale: originalPos.scale,
-				ease: 'elastic.out(.45)'
-			});
-
-			// 恢复所有图标的透明度
-			gsap.to(items, {
-				duration: 0.2,
-				opacity: 1,
-				zIndex: 0
-			});
-		},
-
-		onDrag: function () {
-			if (!gsap.isTweening(logo)) {
-				// 检查是否在logo上方
-				if (Draggable.hitTest(item, logo, 20)) {
-					// 根据SVG颜色改变logo的渐变颜色
-					gsap.to('.logo #gradient stop', {
-						attr: { 'stop-color': (n) => itemColor[n] },
-						duration: 0.3
-					});
+			if (!this.isDragging) {
+				if (isPlaying) {
+					animation.stop();
+					animation.goToAndStop(0, true);
+					isPlaying = false;
+				} else {
+					animation.play();
+					isPlaying = true;
 				}
 			}
 		},
+		onDrag: function () {
+			const itemRect = item.getBoundingClientRect();
+			const titleRect = title.getBoundingClientRect();
+			if (itemRect.left < titleRect.right &&
+				itemRect.right > titleRect.left &&
+				itemRect.top < titleRect.bottom &&
+				itemRect.bottom > titleRect.top) {
+				title.style.color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+			} else {
+				title.style.color = '#fff';
+			}
+		},
+		onDragEnd: function () {
+			const itemRect = item.getBoundingClientRect();
+			const titleRect = title.getBoundingClientRect();
 
-		// 移动端触摸优化
-		allowNativeTouchScrolling: false,
-		allowContextMenu: true,
-		zIndexBoost: false
+			if (itemRect.left < titleRect.right &&
+				itemRect.right > titleRect.left &&
+				itemRect.top < titleRect.bottom &&
+				itemRect.bottom > titleRect.top) {
+				addNumber(num);
+			}
+
+			gsap.to(item, { x: 0, y: 0, duration: 0.5 });
+		}
 	});
 });
 
-// 检查序列是否匹配目标密码
-function checkSequence() {
-	// 如果序列长度超过4，只保留最近的4个元素
-	if (currentSequence.length > 4) {
-		currentSequence = currentSequence.slice(-4);
+// 每输入一个数字处理一次
+function addNumber(num) {
+	if (attemptCount >= maxAttempts) {
+		console.log('已锁定，不能再输入');
+		return;
 	}
 
-	console.log(`检查序列: ${currentSequence}`);
+	sequence.push(num);
+	attemptCount++;
+	console.log(`尝试数字: ${num}, 总尝试次数: ${attemptCount}`);
 
-	// 只有当序列长度达到4时才检查
-	if (currentSequence.length === 4) {
-		const isMatch = currentSequence.every((value, index) => value === targetSequence[index]);
-
-		if (isMatch && attemptCount <= maxAttempts) {
-			passwordUnlocked = true;
-			console.log("🎉 密码正确！恭喜你解锁了秘密！");
-
+	// 检查序列中是否出现连续密码
+	for (let i = 0; i <= sequence.length - password.length; i++) {
+		const sub = sequence.slice(i, i + password.length);
+		if (sub.join('') === password.join('')) {
+			console.log('解锁成功 🎉');
 			// 设置访问令牌
 			sessionStorage.setItem('fireworks_access', 'granted');
 
 			// 跳转到烟花页面
 			window.location.href = 'Fireworks.html';
-			currentSequence = [];
-			// 成功后将序列清空，避免重复触发
-			currentSequence = [];
-		} else if (attemptCount >= maxAttempts && !passwordUnlocked) {
-			console.log("❌ 已超过20次尝试，密码功能已锁定。");
-			// 超过尝试次数后清空序列
-			currentSequence = [];
+			sequence = []; // 解锁成功后清空序列
+			return;
 		}
+	}
+
+	if (attemptCount >= maxAttempts) {
+		console.log('已达到最大尝试次数，解锁功能锁定');
 	}
 }
 
-// 窗口大小变化时重置位置
-window.addEventListener('resize', () => {
-	items.forEach((item) => {
-		const draggable = Draggable.get(item);
-		if (draggable) {
-			draggable.update(true);
-		}
-	});
-});
+function resizeLottieGrid() {
+  const grid = document.getElementById('lottieGrid');
+  const items = document.querySelectorAll('.lottieItem');
+  const cols = window.innerWidth <= 400 ? 1 : window.innerWidth <= 700 ? 2 : 3; // 列数自适应
+  const gap = parseFloat(getComputedStyle(grid).gap) || 0;
+
+  const horizontalPadding = parseFloat(getComputedStyle(grid).paddingLeft) + parseFloat(getComputedStyle(grid).paddingRight) || 0;
+  const verticalPadding = parseFloat(getComputedStyle(grid).paddingTop) + parseFloat(getComputedStyle(grid).paddingBottom) || 0;
+
+  // 计算单个格子最大宽度（左右留间距）
+  const maxItemWidth = (grid.clientWidth - gap * (cols - 1)) / cols;
+
+  // 计算单个格子最大高度（上下留间距，确保网格总高度不超过可用高度）
+  const maxGridHeight = window.innerHeight - verticalPadding - document.getElementById('title').offsetHeight - 20; // 20px额外间距
+  const rows = Math.ceil(items.length / cols);
+  const maxItemHeight = (maxGridHeight - gap * (rows - 1)) / rows;
+
+  // 最终格子尺寸取宽高中最小值，保证完整显示
+  const itemSize = Math.min(maxItemWidth, maxItemHeight);
+
+  items.forEach(item => {
+    item.style.width = itemSize + 'px';
+    item.style.height = itemSize + 'px';
+  });
+}
+
+// 页面加载完成和窗口大小改变时调用
+window.addEventListener('load', resizeLottieGrid);
+window.addEventListener('resize', resizeLottieGrid);

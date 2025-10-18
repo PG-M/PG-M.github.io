@@ -33,6 +33,11 @@ function initFireworks() {
             this.y = y;
             this.color = color;
             this.particles = [];
+
+            // 播放烟花音效
+            const sound = new Audio('../assets/audios/fireworks.mp3'); // 你的烟花音效文件
+            sound.play();
+
             this.createParticles();
         }
 

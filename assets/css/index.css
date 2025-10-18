@@ -1,73 +1,83 @@
-	@font-face {
-		font-display: block;
-		font-family: Mori;
-		font-style: normal;
-		font-weight: 400;
-		src: url(https://assets.codepen.io/16327/PPMori-Regular.woff) format("woff");
+body,
+html {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-family: "微软雅黑", sans-serif;
+	background: #f5cce0;
+	background-image: url(../images/one-mobile.png);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	overflow: hidden;
+	/* 防止滚动条 */
+}
+
+#title {
+	font-size: 16vw;
+	margin-bottom: 4vh;
+	/* 标题与网格间距增加 */
+	color: #fff;
+	text-align: center;
+	text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+	cursor: pointer;
+}
+
+#lottieGrid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 4vw;
+	/* 左右/上下间距加大 */
+	width: calc(100vw - 4vw);
+	/* 左右留 2% */
+	max-width: 1200px;
+	padding: 4vh 0;
+	/* 上下间距加大 */
+	max-height: calc(100vh - 12vh);
+	/* 保留顶部空间给标题，避免滚动 */
+	justify-items: center;
+	align-items: center;
+	box-sizing: border-box;
+}
+
+.lottieItem {
+	width: 100%;
+	aspect-ratio: 1;
+	/* 保持正方形 */
+	max-height: calc((100vh - 12vh - 8vw)/3);
+	/* 保证3行都显示且上下有间距 */
+}
+
+/* 小屏幕优化 */
+@media(max-width:700px) {
+	#lottieGrid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 6vw;
+		width: calc(100vw - 4vw);
+		padding: 4vh 0;
 	}
 
+	.lottieItem {
+		max-height: calc((100vh - 12vh - 6vw*2)/2);
+		/* 两行最大高度 */
+	}
+}
 
-	html,
-	body {
-		margin: 0;
-		padding: 0;
-		font-family: "Mori";
-		color: rgb(255, 252, 225);
-		background: #63e5f3;
-		height: 100vh;
-		/* 确保高度占满视口 */
-		width: 100vw;
-		/* 确保宽度占满视口 */
+@media(max-width:400px) {
+	#lottieGrid {
+		grid-template-columns: 1fr;
+		gap: 6vw;
+		width: calc(100vw - 4vw);
+		padding: 4vh 0;
 	}
 
-	/* 默认背景（手机端） */
-	body {
-		background-image: url("../images/one-mobile.png");
-		background-size: cover;
-		/* 图片覆盖整个屏幕 */
-		background-position: center;
-		/* 图片居中 */
-		background-repeat: no-repeat;
-		/* 不重复 */
-		background-attachment: fixed;
-		/* 固定背景 */
+	.lottieItem {
+		max-height: calc((100vh - 12vh - 6vw*8)/9);
+		/* 9行最大高度 */
 	}
-
-	/* 电脑端背景 */
-	@media (min-width: 768px) {
-		body {
-			background-image: url("../images/one-desktop.png");
-		}
-	}
-
-	main {
-		width: 100%;
-		height: 100vh;
-		max-height: 100vw;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-direction: column;
-	}
-
-	svg.logo {
-		width: 40%;
-		max-width: 600px;
-	}
-
-	.img-group {
-		text-align: center;
-		margin-top: 3rem;
-	}
-
-	.img-group svg {
-		position: relative;
-		width: 20%;
-		margin: 2%;
-		max-width: 150px;
-		cursor: grab;
-	}
-
-	.img-group svg:active {
-		cursor: grabbing;
-	}
+}
